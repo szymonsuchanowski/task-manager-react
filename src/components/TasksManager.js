@@ -5,12 +5,12 @@ class TasksManager extends React.Component {
     constructor() {
         super();
         this.api = new TasksManagerAPI();
-    }
+    };
 
     state = {
         tasks: [],
         newTask: '',
-    }
+    };
 
     render() {
         const { newTask } = this.state;
@@ -36,8 +36,11 @@ class TasksManager extends React.Component {
                         </div>
                     </form>
                 </section>
-                <section className='tasks__placeholder'>
-                    {this.renderTaskInProgress()}
+                <section className='tasks__wrapper'>
+                    <h2 className='tasks__subtitle'>Task in progress</h2>
+                    <div className='tasks__list tasks__list-progress'>
+                        {this.renderTaskInProgress()}
+                    </div>
                 </section>
                 <section className='tasks__wrapper'>
                     <h2 className='tasks__subtitle'>Scheduled tasks</h2>
@@ -63,13 +66,13 @@ class TasksManager extends React.Component {
 
     componentDidMount() {
         this.loadTasks();
-    }
+    };
 
     loadTasks() {
         this.api.loadData()
             .then(data => data.reverse())
             .then((data) => this.setState({ tasks: data }))
-    }
+    };
 
     addNewTask = e => {
         e.preventDefault();
@@ -98,25 +101,56 @@ class TasksManager extends React.Component {
     };
 
     renderTaskInProgress() {
-        return null;
+        const { tasks } = this.state;
+        const taskInProgress = tasks.find(task => task.isRunning);
+        if (taskInProgress) {
+            return (
+                <>
+                    <header className='tasks__header'>
+                        <h3 className='tasks__name'>{taskInProgress.title}</h3>
+                        <p className='tasks__timer'>00:00:00</p>
+                    </header>
+                    <footer className='tasks__footer'>
+                        <button className='tasks__btn'>Start/Pause</button>
+                        <button className='tasks__btn'>Complete</button>
+                    </footer>
+                </>
+            );
+        } else {
+            return (
+                <p>No task in progress...</p>
+            )
+        }
     };
 
     renderScheduledTasksList() {
         const { tasks } = this.state;
         return tasks.map(task => {
-            const { isRunning, isDone, isRemoved } = task;
-            if (!isRunning && !isDone && !isRemoved) {
+            const { isRunning, isDone, isRemoved, time } = task;
+            if (!isRunning && !isDone && !isRemoved && time === 0) {
                 return this.renderTaskItem(task);
-            }
-        })
+            };
+        });
     };
 
     renderStoppedTasksList() {
-        return null;
-    }
+        const { tasks } = this.state;
+        return tasks.map(task => {
+            const { isRunning, isDone, isRemoved, time } = task;
+            if (!isRunning && !isDone && !isRemoved && time > 0) {
+                return this.renderTaskItem(task);
+            };
+        });
+    };
 
     renderCompletedTasksList() {
-        return null;
+        const { tasks } = this.state;
+        return tasks.map(task => {
+            const { isDone, isRemoved } = task;
+            if (isDone && !isRemoved) {
+                return this.renderTaskItem(task);
+            };
+        });
     };
 
     renderTaskItem(task) {
@@ -135,10 +169,6 @@ class TasksManager extends React.Component {
             </li>
         );
     };
-
-    showTime() {
-        return null;
-    }
 };
 
 export default TasksManager;

@@ -18,7 +18,7 @@ class TasksManager extends React.Component {
         const { newTask } = this.state;
         return (
             <div className='tasks'>
-                <h1 className='tasks__title'>Manage your tasks!</h1>
+                <h1 className='tasks__heading'>Manage tasks like a <span className='tasks__highlight'>boss</span>!</h1>
                 <section className='tasks__form'>
                     <form className='form' onSubmit={this.addNewTask}>
                         <div className='form__wrapper'>
@@ -42,7 +42,12 @@ class TasksManager extends React.Component {
                     </form>
                 </section>
                 <section className='tasks__wrapper'>
-                    <h2 className='tasks__subtitle'>Task in progress</h2>
+                    <header className='tasks__subheading'>
+                        <h2 className='tasks__subtitle'>Task in progress</h2>
+                        <p className='tasks__description'>
+                            to maximize the effect, focus on <span className='tasks__highlight'>one</span> task
+                        </p>
+                    </header>
                     <div className='tasks__running'>
                         {this.renderRunningTask()}
                     </div>
@@ -121,15 +126,11 @@ class TasksManager extends React.Component {
     renderInfoMsg() {
         if (this.state.isTaskValid) {
             return (
-                <p className='form__msg'>
-                    task title must be at least 5 characters long
-                </p>
+                <p className='form__msg'>task title must be at least 5 characters long</p>
             );
         } else if (this.state.tasks.length === 0) {
             return (
-                <p className='form__info'>
-                    add your first task!
-                </p>
+                <p className='form__info'>add your first task!</p>
             )
         }
     };
@@ -187,7 +188,7 @@ class TasksManager extends React.Component {
     renderHeader(task) {
         const { title, time, isRunning } = task;
         return (
-            <header className='tasks__header'>
+            <header className='tasks__title'>
                 <h3 className='tasks__name'>{title}</h3>
                 <p className='tasks__timer'>00:00:00</p>
             </header>

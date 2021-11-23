@@ -1,15 +1,10 @@
 {
   "data": [
     {
-      "id": 1,
-      "firstName": "Jan",
-      "lastName": "Kowalski"
-    },
-    {
       "title": "aaaaaa",
       "time": 0,
       "isRunning": false,
-      "isDone": false,
+      "isDone": true,
       "isRemoved": false,
       "id": 2
     },
@@ -17,7 +12,7 @@
       "title": "aaaaaaaaa",
       "time": 0,
       "isRunning": false,
-      "isDone": false,
+      "isDone": true,
       "isRemoved": false,
       "id": 3
     },
@@ -127,11 +122,19 @@
     },
     {
       "title": "nowe zadanie 6666",
-      "time": 0,
+      "time": 7,
       "isRunning": false,
       "isDone": false,
       "isRemoved": false,
       "id": 17
+    },
+    {
+      "title": "nowe zadanie do zrobienia",
+      "time": 0,
+      "isRunning": false,
+      "isDone": false,
+      "isRemoved": false,
+      "id": 18
     }
   ]
 }

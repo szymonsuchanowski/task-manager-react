@@ -10,6 +10,7 @@ class TasksManager extends React.Component {
     state = {
         tasks: [],
         newTask: '',
+        runningTask: null,
     };
 
     render() {
@@ -71,7 +72,7 @@ class TasksManager extends React.Component {
     loadTasks() {
         this.api.loadData()
             .then(data => data.reverse())
-            .then((data) => this.setState({ tasks: data }))
+            .then(data => this.setState({ tasks: data }))
     };
 
     addNewTask = e => {
@@ -111,8 +112,8 @@ class TasksManager extends React.Component {
                         <p className='tasks__timer'>00:00:00</p>
                     </header>
                     <footer className='tasks__footer'>
-                        <button className='tasks__btn'>Start/Pause</button>
-                        <button className='tasks__btn'>Complete</button>
+                        <button className='tasks__btn' onClick={() => this.pauseTask(taskInProgress)}>Pause</button>
+                        <button className='tasks__btn' onClick={() => this.completeTask(taskInProgress)}>Complete</button>
                     </footer>
                 </>
             );
@@ -155,6 +156,7 @@ class TasksManager extends React.Component {
 
     renderTaskItem(task) {
         const { title, time, isRunning, isDone, id } = task;
+        const isTaskRunning = this.state.tasks.find(task => task.isRunning);
         return (
             <li className='tasks__item' key={id}>
                 <header className='tasks__header'>
@@ -162,13 +164,74 @@ class TasksManager extends React.Component {
                     <p className='tasks__timer'>00:00:00</p>
                 </header>
                 <footer className='tasks__footer'>
-                    <button className='tasks__btn'>Start/Pause</button>
-                    <button className='tasks__btn'>Complete</button>
-                    <button className='tasks__btn'>Delete</button>
+                    <button className={!isDone ? 'tasks__btn' : 'tasks__btn--invisible'} disabled={isTaskRunning} onClick={() => this.startTask(task)}>Start</button>
+                    <button className='tasks__btn' onClick={() => isDone ? this.restoreTask(task) : this.completeTask(task)}>{isDone ? 'Restore' : 'Complete'}</button>
+                    <button className={isDone ? 'tasks__btn' : 'tasks__btn--invisible'} onClick={() => this.deleteTask(task)}>Delete</button>
                 </footer>
             </li>
         );
     };
+
+    startTask(task) {
+        this.setState(prevState => ({
+            tasks: prevState.tasks.map(obj => {
+                if(obj.id === task.id) {
+                    return {...obj, isRunning: true}
+                }  else {
+                    return obj;
+                }
+            })
+        }), () => this.updateTask(task.id));
+        this.setState({runningTask: task});
+    }
+
+    stopTask(task) {
+        return null;
+    }
+
+    updateTask(id) {
+        const {tasks} = this.state;
+        const editedTask = tasks.find(task => task.id === id);
+        console.log(editedTask);
+        this.api.updateData(id, editedTask);
+    }
+
+    pauseTask(task) {
+        this.setState(prevState => ({
+            tasks: prevState.tasks.map(obj => {
+                return (obj.id === task.id) ? {...obj, isRunning: false} : obj;
+            })
+        }), () => this.updateTask(task.id));
+        this.setState({runningTask: null});
+    }
+
+    restoreTask(task) {
+        this.setState(prevState => ({
+            tasks: prevState.tasks.map(obj => {
+                return (obj.id === task.id) ? {...obj, isDone: false} : obj;
+            })
+        }), () => this.updateTask(task.id));
+    }
+
+    completeTask(task) {
+        this.setState(prevState => ({
+            tasks: prevState.tasks.map(obj => {
+                return (obj.id === task.id) ? {...obj, isRunning: false, isDone: true} : obj;
+            })
+        }), () => this.updateTask(task.id));
+        const {runningTask} = this.state;
+        if(runningTask === task) {
+            this.setState({runningTask: null});
+        }
+    }
+
+    deleteTask(task) {
+        this.setState(prevState => ({
+            tasks: prevState.tasks.map(obj => {
+                return (obj.id === task.id) ? {...obj, isRemoved: true} : obj;
+            })
+        }), () => this.updateTask(task.id));
+    }
 };
 
 export default TasksManager;

@@ -1,3 +1,7 @@
 body {
     background: #dcdcdc;
 }
+
+.tasks__btn--invisible {
+    display: none;
+}

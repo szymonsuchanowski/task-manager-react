@@ -11,15 +11,15 @@ class TasksManager extends React.Component {
         tasks: [],
         newTask: '',
         runningTask: null,
-        isTaskValid: false,
+        isTaskInvalid: false,
     };
 
     render() {
         const { newTask } = this.state;
         return (
             <div className='tasks'>
-                <h1 className='tasks__heading'>Manage tasks like a <span className='tasks__highlight'>boss</span>!</h1>
-                <section className='tasks__form'>
+                <h1 className='tasks__heading'>Manage tasks <span className='tasks__highlight'>like a boss</span>!</h1>
+                <section className='tasks__form form'>
                     <form className='form' onSubmit={this.addNewTask}>
                         <div className='form__wrapper'>
                             <label>
@@ -45,12 +45,10 @@ class TasksManager extends React.Component {
                     <header className='tasks__subheading'>
                         <h2 className='tasks__subtitle'>Task in progress</h2>
                         <p className='tasks__description'>
-                            to maximize the effect, focus on <span className='tasks__highlight'>one</span> task
+                            to maximize the effect, focus on <span className='tasks__highlight'>one task</span>
                         </p>
                     </header>
-                    <div className='tasks__running'>
-                        {this.renderRunningTask()}
-                    </div>
+                    {this.renderRunningTask()}
                 </section>
                 <section className='tasks__wrapper'>
                     <h2 className='tasks__subtitle'>Scheduled tasks</h2>
@@ -75,6 +73,18 @@ class TasksManager extends React.Component {
     };
 
     componentDidMount() {
+        this.api.loadData()
+            .then(data => this.removeLastRunningTask(data))
+            .catch(err => console.error(err))
+    };
+
+    removeLastRunningTask(data) {
+        const runningTask = data.find(item => item.isRunning);
+        if (runningTask) {
+            runningTask.isRunning = false;
+            this.api.updateData(runningTask.id, runningTask)
+                .catch(err => console.error(err))
+        };
         this.loadTasks();
     };
 
@@ -92,13 +102,13 @@ class TasksManager extends React.Component {
             const task = this.createNewTask(newTask);
             this.setState({
                 newTask: '',
-                isTaskValid: false,
+                isTaskInvalid: false,
             });
             this.api.addData(task)
                 .then(() => this.loadTasks())
                 .catch(err => console.error(err))
         } else {
-            this.setState({ isTaskValid: true });
+            this.setState({ isTaskInvalid: true });
         };
     };
 
@@ -124,25 +134,25 @@ class TasksManager extends React.Component {
     };
 
     renderInfoMsg() {
-        if (this.state.isTaskValid) {
+        if (this.state.isTaskInvalid) {
             return (
                 <p className='form__msg'>task title must be at least 5 characters long</p>
             );
-        } else if (this.state.tasks.length === 0) {
+        } else if (this.getTasksAmount() === 0) {
             return (
-                <p className='form__info'>add your first task!</p>
+                <p className='form__info'>add first task and <span className='tasks__highlight'>start doing</span>!</p>
             )
-        }
+        };
     };
 
     renderRunningTask() {
         const runningTask = this.findRunningTask();
         if (runningTask) {
             return (
-                <>
+                <div className='tasks__running'>
                     {this.renderHeader(runningTask)}
                     {this.renderFooter(runningTask)}
-                </>
+                </div>
             );
         } else {
             return (
@@ -190,7 +200,9 @@ class TasksManager extends React.Component {
         return (
             <header className='tasks__title'>
                 <h3 className='tasks__name'>{title}</h3>
-                <p className='tasks__timer'>00:00:00</p>
+                <p className={this.setTimerClass(isRunning)}>
+                    {new Date(time * 1000).toISOString().substring(11, 19)}
+                </p>
             </header>
         );
     };
@@ -200,7 +212,7 @@ class TasksManager extends React.Component {
         const runningTask = this.findRunningTask();
         return (
             <footer className='tasks__footer'>
-                <button className={this.setStartBtnClass(!isDone)}
+                <button className={this.setBtnClass(!isDone, 'start')}
                     disabled={runningTask && !isRunning}
                     onClick={() => isRunning ? this.pauseTask(task) : this.startTask(task)}>
                     {isRunning ? 'Pause' : 'Start'}
@@ -209,7 +221,7 @@ class TasksManager extends React.Component {
                     onClick={() => isDone ? this.restoreTask(task) : this.completeTask(task)}>
                     {isDone ? 'Restore' : 'Complete'}
                 </button>
-                <button className={this.setDeleteBtnClass(isDone)}
+                <button className={this.setBtnClass(isDone, 'delete')}
                     onClick={() => this.deleteTask(task)}>
                     Delete
                 </button>
@@ -223,6 +235,7 @@ class TasksManager extends React.Component {
         };
         this.setTaskStateById(task.id, newTaskStateData);
         this.setRunningTaskState(task);
+        this.startTimer(task);
     };
 
     pauseTask(task) {
@@ -231,6 +244,7 @@ class TasksManager extends React.Component {
         };
         this.setTaskStateById(task.id, newTaskStateData);
         this.setRunningTaskState(null);
+        this.stopTimer();
     };
 
     restoreTask(task) {
@@ -249,6 +263,7 @@ class TasksManager extends React.Component {
         const { runningTask } = this.state;
         if (runningTask && runningTask.id === task.id) {
             this.setRunningTaskState(null);
+            this.stopTimer();
         };
     };
 
@@ -277,6 +292,17 @@ class TasksManager extends React.Component {
         });
     };
 
+    startTimer(task) {
+        this.intervalId = setInterval(() => {
+            task.time++;
+            this.setTaskStateById(task.id, { time: task.time });
+        }, 1000);
+    };
+
+    stopTimer() {
+        clearInterval(this.intervalId);
+    };
+
     findRunningTask() {
         return this.state.tasks.find(task => task.isRunning);
     };
@@ -289,12 +315,17 @@ class TasksManager extends React.Component {
         return arr.sort((a, b) => b.time - a.time);
     };
 
-    setStartBtnClass(testValue) {
-        return testValue ? 'tasks__btn tasks__btn--start' : 'tasks__btn--invisible';
+    getTasksAmount() {
+        const remainTaskList = this.state.tasks.filter(task => !task.isRemoved);
+        return remainTaskList.length;
     };
 
-    setDeleteBtnClass(testValue) {
-        return testValue ? 'tasks__btn tasks__btn--delete' : 'tasks__btn--invisible';
+    setBtnClass(testValue, btnType) {
+        return testValue ? `tasks__btn tasks__btn--${btnType}` : 'tasks__btn--invisible';
+    };
+
+    setTimerClass(testValue) {
+        return testValue ? 'tasks__timer tasks__timer--active' : 'tasks__timer';
     };
 };
 

@@ -20,30 +20,29 @@ class TasksManager extends React.Component {
             <div className='tasks'>
                 <h1 className='tasks__heading'>Manage tasks <span className='tasks__highlight'>like a boss</span>!</h1>
                 <section className='tasks__form form'>
-                    <form className='form' onSubmit={this.addNewTask}>
-                        <div className='form__wrapper'>
-                            <label>
-                                Add new task
+                    <form className='form__section' onSubmit={this.addNewTask}>
+                        <div className='form__container'>
+                            <div className='form__wrapper form__wrapper--field'>
                                 <input className='form__field'
                                     name='newTask' value={newTask}
                                     onChange={this.inputChange}
-                                    placeholder='type task here' />
+                                    placeholder='type new task here' />
                                 <span className='form__field-border'></span>
-                            </label>
-                        </div>
-                        <div className='form__wrapper'>
-                            <input className='form__submit btn'
-                                value='Add'
-                                type='submit' />
+                            </div>
+                            <div className='form__wrapper form__wrapper--submit'>
+                                <input className='form__submit'
+                                    value='Add'
+                                    type='submit' />
+                            </div>
                         </div>
                         <div className='form__placeholder'>
                             {this.renderInfoMsg()}
                         </div>
                     </form>
                 </section>
-                <section className='tasks__wrapper'>
+                <section className='tasks__wrapper tasks__wrapper--progress'>
                     <header className='tasks__subheading'>
-                        <h2 className='tasks__subtitle'>Task in progress</h2>
+                        <h2 className='tasks__subtitle tasks__subtitle--progress'>in progress</h2>
                         <p className='tasks__description'>
                             to maximize the effect, focus on <span className='tasks__highlight'>one task</span>
                         </p>
@@ -51,19 +50,19 @@ class TasksManager extends React.Component {
                     {this.renderRunningTask()}
                 </section>
                 <section className='tasks__wrapper'>
-                    <h2 className='tasks__subtitle'>Scheduled tasks</h2>
+                    <h2 className='tasks__subtitle'>scheduled</h2>
                     <ul className='tasks__list tasks__list--plan'>
                         {this.renderScheduledTasksList()}
                     </ul>
                 </section>
                 <section className='tasks__wrapper'>
-                    <h2 className='tasks__subtitle'>Stopped tasks</h2>
+                    <h2 className='tasks__subtitle'>stopped</h2>
                     <ul className='tasks__list tasks__list--stop'>
                         {this.renderStoppedTasksList()}
                     </ul>
                 </section>
                 <section className='tasks__wrapper'>
-                    <h2 className='tasks__subtitle'>Completed tasks</h2>
+                    <h2 className='tasks__subtitle'>completed</h2>
                     <ul className='tasks__list tasks__list--done'>
                         {this.renderCompletedTasksList()}
                     </ul>
@@ -156,7 +155,7 @@ class TasksManager extends React.Component {
             );
         } else {
             return (
-                <p className='tasks__msg'>No task in progress yet</p>
+                <p className='tasks__msg'>no task in progress yet</p>
             );
         };
     };
@@ -212,21 +211,32 @@ class TasksManager extends React.Component {
         const runningTask = this.findRunningTask();
         return (
             <footer className='tasks__footer'>
-                <button className={this.setBtnClass(!isDone, 'start')}
+                <button className={this.setStartBtnClass(isDone, isRunning)}
                     disabled={runningTask && !isRunning}
+                    title={isRunning ? 'pause task' : 'start task'}
                     onClick={() => isRunning ? this.pauseTask(task) : this.startTask(task)}>
-                    {isRunning ? 'Pause' : 'Start'}
+                    {this.setStartBtnContent(isRunning)}
                 </button>
-                <button className='tasks__btn tasks__btn--complete'
+                <button className={this.setCompleteBtnClass(isDone)}
+                    title={isDone ? 'restore task' : 'mark as complete'}
                     onClick={() => isDone ? this.restoreTask(task) : this.completeTask(task)}>
-                    {isDone ? 'Restore' : 'Complete'}
+                    {this.setCompleteBtnContent(isDone)}
                 </button>
-                <button className={this.setBtnClass(isDone, 'delete')}
+                <button className={this.setDeleteBtnClass(isDone)}
+                    title='delete task'
                     onClick={() => this.deleteTask(task)}>
-                    Delete
+                    <i className='far fa-trash-alt tasks__icon'></i>
                 </button>
             </footer>
         );
+    };
+
+    setStartBtnContent(isRunning) {
+        return isRunning ? <i className='fas fa-pause tasks__icon'></i> : <i className='fas fa-play tasks__icon'></i>;
+    };
+
+    setCompleteBtnContent(isDone) {
+        return isDone ? <i className='fas fa-undo-alt tasks__icon'></i> : <i className='fas fa-check tasks__icon'></i>;
     };
 
     startTask(task) {
@@ -320,8 +330,22 @@ class TasksManager extends React.Component {
         return remainTaskList.length;
     };
 
-    setBtnClass(testValue, btnType) {
-        return testValue ? `tasks__btn tasks__btn--${btnType}` : 'tasks__btn--invisible';
+    setStartBtnClass(isDone, isRunning) {
+        if (isDone) {
+            return 'tasks__btn--invisible';
+        } else if (isRunning) {
+            return 'tasks__btn tasks__btn--pause';
+        } else {
+            return 'tasks__btn tasks__btn--start';
+        };
+    };
+
+    setCompleteBtnClass(isDone) {
+        return isDone ? 'tasks__btn tasks__btn--restore' : 'tasks__btn tasks__btn--complete';
+    };
+
+    setDeleteBtnClass(isDone) {
+        return isDone ? `tasks__btn tasks__btn--delete` : 'tasks__btn--invisible';
     };
 
     setTimerClass(testValue) {

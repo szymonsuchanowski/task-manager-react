@@ -102,6 +102,9 @@ ul {
     margin-top: 0;
     border: none;
     margin-bottom: 1rem;
+
+    background-image: url('../progress-bg-img.jpg');
+    background-size: cover;
 }
 
 .tasks__subheading {

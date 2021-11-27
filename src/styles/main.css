@@ -119,7 +119,6 @@ body {
 .form__placeholder {
     align-items: center;
     display: flex;
-    justify-content: center;
     min-height: 3rem;
     padding: 0.8rem 0;
 }
@@ -132,6 +131,8 @@ body {
 .form__info {
     font-size: 0.8rem;
     letter-spacing: 0.1rem;
+    text-align: center;
+    width: 100%;
 }
 
 .tasks__wrapper {

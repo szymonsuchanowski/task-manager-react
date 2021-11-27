@@ -284,6 +284,9 @@ class TasksManager extends React.Component {
             isRemoved: true,
         };
         this.setTaskStateById(task.id, newTaskStateData);
+        if (this.getTasksAmount() === 1) {
+            this.setState({ isTaskInvalid: false });
+        }
     };
 
     setTaskStateById(id, newTaskStateDataObj) {

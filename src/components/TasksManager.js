@@ -18,7 +18,7 @@ class TasksManager extends React.Component {
         const { newTask } = this.state;
         return (
             <div className='tasks'>
-                <h1 className='tasks__heading'>Manage tasks <span className='tasks__highlight'>like a boss</span>!</h1>
+                <h1 className='tasks__heading'>Manage tasks <span className='tasks__highlight'>like a boss!</span></h1>
                 <section className='tasks__form form'>
                     <form className='form__section' onSubmit={this.addNewTask}>
                         <div className='form__container'>
@@ -44,24 +44,24 @@ class TasksManager extends React.Component {
                     <header className='tasks__subheading'>
                         <h2 className='tasks__subtitle tasks__subtitle--progress'>in progress</h2>
                         <p className='tasks__description'>
-                            to maximize the effect, focus on <span className='tasks__highlight'>one task</span>
+                            to maximize the effect, focus on <span className='tasks__highlight--banner'>one task</span>
                         </p>
                     </header>
                     {this.renderRunningTask()}
                 </section>
-                <section className='tasks__wrapper'>
+                <section className='tasks__wrapper tasks__wrapper--scheduled'>
                     <h2 className='tasks__subtitle'>scheduled</h2>
                     <ul className='tasks__list tasks__list--plan'>
                         {this.renderScheduledTasksList()}
                     </ul>
                 </section>
-                <section className='tasks__wrapper'>
+                <section className='tasks__wrapper tasks__wrapper--stopped'>
                     <h2 className='tasks__subtitle'>stopped</h2>
                     <ul className='tasks__list tasks__list--stop'>
                         {this.renderStoppedTasksList()}
                     </ul>
                 </section>
-                <section className='tasks__wrapper'>
+                <section className='tasks__wrapper tasks__wrapper--completed'>
                     <h2 className='tasks__subtitle'>completed</h2>
                     <ul className='tasks__list tasks__list--done'>
                         {this.renderCompletedTasksList()}
@@ -135,11 +135,11 @@ class TasksManager extends React.Component {
     renderInfoMsg() {
         if (this.state.isTaskInvalid) {
             return (
-                <p className='form__msg'>task title must be at least 5 characters long</p>
+                <p className='form__err'>task must be at least 5 characters long</p>
             );
         } else if (this.getTasksAmount() === 0) {
             return (
-                <p className='form__info'>add first task and <span className='tasks__highlight'>start doing</span>!</p>
+                <p className='form__info'>add first task and <span className='tasks__highlight'>start doing!</span></p>
             )
         };
     };
@@ -225,18 +225,20 @@ class TasksManager extends React.Component {
                 <button className={this.setDeleteBtnClass(isDone)}
                     title='delete task'
                     onClick={() => this.deleteTask(task)}>
-                    <i className='far fa-trash-alt tasks__icon'></i>
+                    <i className='far fa-trash-alt tasks__icon tasks__icon--delete'></i>
                 </button>
             </footer>
         );
     };
 
     setStartBtnContent(isRunning) {
-        return isRunning ? <i className='fas fa-pause tasks__icon'></i> : <i className='fas fa-play tasks__icon'></i>;
+        return isRunning ? <i className='fas fa-pause tasks__icon tasks__icon--pause'></i> :
+            <i className='fas fa-play tasks__icon tasks__icon--play'></i>;
     };
 
     setCompleteBtnContent(isDone) {
-        return isDone ? <i className='fas fa-undo-alt tasks__icon'></i> : <i className='fas fa-check tasks__icon'></i>;
+        return isDone ? <i className='fas fa-undo-alt tasks__icon tasks__icon--restore'></i> :
+            <i className='fas fa-check tasks__icon tasks__icon--complete'></i>;
     };
 
     startTask(task) {

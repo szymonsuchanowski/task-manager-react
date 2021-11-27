@@ -49,24 +49,26 @@ class TasksManager extends React.Component {
                     </header>
                     {this.renderRunningTask()}
                 </section>
-                <section className='tasks__wrapper tasks__wrapper--scheduled'>
-                    <h2 className='tasks__subtitle'>scheduled</h2>
-                    <ul className='tasks__list tasks__list--plan'>
-                        {this.renderScheduledTasksList()}
-                    </ul>
-                </section>
-                <section className='tasks__wrapper tasks__wrapper--stopped'>
-                    <h2 className='tasks__subtitle'>stopped</h2>
-                    <ul className='tasks__list tasks__list--stop'>
-                        {this.renderStoppedTasksList()}
-                    </ul>
-                </section>
-                <section className='tasks__wrapper tasks__wrapper--completed'>
-                    <h2 className='tasks__subtitle'>completed</h2>
-                    <ul className='tasks__list tasks__list--done'>
-                        {this.renderCompletedTasksList()}
-                    </ul>
-                </section>
+                <div className='tasks__section'>
+                    <section className='tasks__wrapper tasks__wrapper--scheduled'>
+                        <h2 className='tasks__subtitle'>scheduled</h2>
+                        <ul className='tasks__list tasks__list--plan'>
+                            {this.renderScheduledTasksList()}
+                        </ul>
+                    </section>
+                    <section className='tasks__wrapper tasks__wrapper--stopped'>
+                        <h2 className='tasks__subtitle'>stopped</h2>
+                        <ul className='tasks__list tasks__list--stop'>
+                            {this.renderStoppedTasksList()}
+                        </ul>
+                    </section>
+                    <section className='tasks__wrapper tasks__wrapper--completed'>
+                        <h2 className='tasks__subtitle'>completed</h2>
+                        <ul className='tasks__list tasks__list--done'>
+                            {this.renderCompletedTasksList()}
+                        </ul>
+                    </section>
+                </div>
             </div>
         );
     };

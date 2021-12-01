@@ -85,9 +85,11 @@ class TasksManager extends React.Component {
             runningTask.isRunning = false;
             runningTask.isStarted = true;
             this.api.updateData(runningTask.id, runningTask)
+                .then(() => this.loadTasks())
                 .catch(err => console.error(err))
-        };
-        this.loadTasks();
+        } else {
+            this.loadTasks();
+        }
     };
 
     loadTasks() {

@@ -178,6 +178,8 @@ body {
     color: var(--navy-text);
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    min-height: 123px;
     padding: 0.5rem;
     width: 100%;
     max-width: 500px;
@@ -191,11 +193,15 @@ body {
 
 .tasks__running > .tasks__footer {
     justify-content: space-between;
-    width: 85px;
+    width: 120px;
 }
 
 .tasks__running > .tasks__footer > .tasks__btn {
     margin: 0;
+}
+
+.tasks__running--empty {
+    background: var(--light-blue-bg);
 }
 
 .tasks__timer--active {
@@ -313,6 +319,28 @@ body {
     padding: 0.75rem;
 }
 
+.tasks__info {
+    color: var(--blue-timer-active);
+    display: none;
+    font-style: italic;
+}
+
+.tasks__item--active > .tasks__footer {
+    visibility: hidden;
+}
+
+.tasks__item--active > .tasks__title > .tasks__timer {
+    display: none;
+}
+
+.tasks__item--active > .tasks__title > .tasks__info {
+    display: block;
+}
+
+.tasks__item--inactive {
+    opacity: 0.4;
+}
+
 .tasks__footer {
     display: flex;
     justify-content: flex-end;
@@ -353,6 +381,10 @@ body {
 }
 
 .tasks__icon--delete {
+    background: var(--red-btn);
+}
+
+.tasks__icon--cancel {
     background: var(--red-btn);
 }
 
@@ -472,7 +504,6 @@ body {
     }
 
     .tasks__section {
-        align-items: flex-start;
         flex-direction: row;
         max-width: 1440px;
         padding-top: 3rem;
@@ -525,12 +556,14 @@ body {
         box-shadow: inset 0 -3.25em 0 0 var(--green-btn);
     }
 
-    .tasks__icon--delete {
+    .tasks__icon--delete,
+    .tasks__icon--cancel {
         border: 2px solid var(--red-btn);
         color: var(--red-btn);
     }
 
-    .tasks__icon--delete:hover {
+    .tasks__icon--delete:hover,
+    .tasks__icon--cancel:hover {
         box-shadow: inset 0 -3.25em 0 0 var(--red-btn);
     }
 

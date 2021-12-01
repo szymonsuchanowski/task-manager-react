@@ -83,6 +83,7 @@ class TasksManager extends React.Component {
         const runningTask = data.find(item => item.isRunning);
         if (runningTask) {
             runningTask.isRunning = false;
+            runningTask.isStarted = true;
             this.api.updateData(runningTask.id, runningTask)
                 .catch(err => console.error(err))
         };
@@ -124,6 +125,7 @@ class TasksManager extends React.Component {
             isRunning: false,
             isDone: false,
             isRemoved: false,
+            isStarted: false,
         };
     };
 
@@ -142,7 +144,7 @@ class TasksManager extends React.Component {
         } else if (this.getTasksAmount() === 0) {
             return (
                 <p className='form__info'>add first task and <span className='tasks__highlight'>start doing!</span></p>
-            )
+            );
         };
     };
 
@@ -157,21 +159,22 @@ class TasksManager extends React.Component {
             );
         } else {
             return (
-                <p className='tasks__msg'>no task in progress yet</p>
+                <div className='tasks__running tasks__running--empty'>
+                    <p className='tasks__msg'>no task in progress yet</p>
+                </div>
             );
         };
     };
 
     renderScheduledTasksList() {
         const { tasks } = this.state;
-        const scheduledTasksList = tasks.filter(task => (!task.isRemoved && !task.isRunning && !task.isDone && task.time === 0));
+        const scheduledTasksList = tasks.filter(task => (!task.isRemoved && !task.isStarted && !task.isDone));
         return this.renderTaskList(scheduledTasksList);
     };
 
     renderStoppedTasksList() {
         const { tasks } = this.state;
-        const stoppedTasksList = tasks.filter(task => (!task.isRemoved && !task.isRunning && !task.isDone && task.time > 0));
-        this.sortArrByTime(stoppedTasksList);
+        const stoppedTasksList = tasks.filter(task => (!task.isRemoved && task.isStarted && !task.isDone));
         return this.renderTaskList(stoppedTasksList);
     };
 
@@ -187,9 +190,10 @@ class TasksManager extends React.Component {
     };
 
     renderTaskItem(task) {
-        const { id } = task;
+        const runningTask = this.findRunningTask();
+        const { id, isRunning } = task;
         return (
-            <li className='tasks__item' key={id}>
+            <li className={this.setListItemClass(runningTask, isRunning)} key={id}>
                 {this.renderHeader(task)}
                 {this.renderFooter(task)}
             </li>
@@ -204,6 +208,7 @@ class TasksManager extends React.Component {
                 <p className={this.setTimerClass(isRunning)}>
                     {new Date(time * 1000).toISOString().substring(11, 19)}
                 </p>
+                <p className='tasks__info'>in progress</p>
             </header>
         );
     };
@@ -213,21 +218,24 @@ class TasksManager extends React.Component {
         const runningTask = this.findRunningTask();
         return (
             <footer className='tasks__footer'>
-                <button className={this.setStartBtnClass(isDone, isRunning)}
+                <button
+                    className={this.setStartBtnClass(isDone, isRunning)}
                     disabled={runningTask && !isRunning}
                     title={isRunning ? 'pause task' : 'start task'}
                     onClick={() => isRunning ? this.pauseTask(task) : this.startTask(task)}>
                     {this.setStartBtnContent(isRunning)}
                 </button>
-                <button className={this.setCompleteBtnClass(isDone)}
+                <button
+                    className={this.setCompleteBtnClass(isDone)}
                     title={isDone ? 'restore task' : 'mark as complete'}
                     onClick={() => isDone ? this.restoreTask(task) : this.completeTask(task)}>
                     {this.setCompleteBtnContent(isDone)}
                 </button>
-                <button className={this.setDeleteBtnClass(isDone)}
-                    title='delete task'
-                    onClick={() => this.deleteTask(task)}>
-                    <i className='far fa-trash-alt tasks__icon tasks__icon--delete'></i>
+                <button
+                    className={this.setDeleteBtnClass(isDone, isRunning)}
+                    title={isRunning ? 'restore to scheduled' : 'delete task'}
+                    onClick={() => isRunning ? this.cancelTask(task) : this.deleteTask(task)}>
+                    {this.setDeleteBtnContent(isRunning)}
                 </button>
             </footer>
         );
@@ -243,6 +251,11 @@ class TasksManager extends React.Component {
             <i className='fas fa-check tasks__icon tasks__icon--complete'></i>;
     };
 
+    setDeleteBtnContent(isRunning) {
+        return isRunning ? <i className='fas fa-times tasks__icon tasks__icon--cancel'></i> :
+            <i className='far fa-trash-alt tasks__icon tasks__icon--delete'></i>
+    };
+
     startTask(task) {
         const newTaskStateData = {
             isRunning: true,
@@ -255,6 +268,7 @@ class TasksManager extends React.Component {
     pauseTask(task) {
         const newTaskStateData = {
             isRunning: false,
+            isStarted: true,
         };
         this.setTaskStateById(task.id, newTaskStateData);
         this.setRunningTaskState(null);
@@ -276,9 +290,21 @@ class TasksManager extends React.Component {
         this.setTaskStateById(task.id, newTaskStateData);
         const { runningTask } = this.state;
         if (runningTask && runningTask.id === task.id) {
+            this.setTaskStateById(task.id, { isStarted: true });
             this.setRunningTaskState(null);
             this.stopTimer();
         };
+    };
+
+    cancelTask(task) {
+        const newTaskStateData = {
+            isRunning: false,
+            isStarted: false,
+            time: 0,
+        };
+        this.setTaskStateById(task.id, newTaskStateData);
+        this.setRunningTaskState(null);
+        this.stopTimer();
     };
 
     deleteTask(task) {
@@ -288,7 +314,7 @@ class TasksManager extends React.Component {
         this.setTaskStateById(task.id, newTaskStateData);
         if (this.getTasksAmount() === 1) {
             this.setState({ isTaskInvalid: false });
-        }
+        };
     };
 
     setTaskStateById(id, newTaskStateDataObj) {
@@ -337,6 +363,16 @@ class TasksManager extends React.Component {
         return remainTaskList.length;
     };
 
+    setListItemClass(runningTask, isRunning) {
+        if (!runningTask) {
+            return 'tasks__item';
+        } else if (isRunning) {
+            return 'tasks__item tasks__item--active';
+        } else {
+            return 'tasks__item tasks__item--inactive';
+        };
+    };
+
     setStartBtnClass(isDone, isRunning) {
         if (isDone) {
             return 'tasks__btn--invisible';
@@ -351,8 +387,14 @@ class TasksManager extends React.Component {
         return isDone ? 'tasks__btn tasks__btn--restore' : 'tasks__btn tasks__btn--complete';
     };
 
-    setDeleteBtnClass(isDone) {
-        return isDone ? `tasks__btn tasks__btn--delete` : 'tasks__btn--invisible';
+    setDeleteBtnClass(isDone, isRunning) {
+        if (isRunning) {
+            return 'tasks__btn tasks__btn--cancel';
+        } else if (isDone) {
+            return 'tasks__btn tasks__btn--delete';
+        } else {
+            return 'tasks__btn--invisible';
+        };
     };
 
     setTimerClass(testValue) {

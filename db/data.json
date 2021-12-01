@@ -6,31 +6,26 @@
       "isRunning": false,
       "isDone": false,
       "isRemoved": false,
+      "isStarted": false,
       "id": 1
     },
     {
       "title": "doing nothing",
-      "time": 34,
+      "time": 5,
       "isRunning": false,
       "isDone": false,
       "isRemoved": false,
+      "isStarted": true,
       "id": 2
     },
     {
-      "title": "finish devmentor mentoring",
-      "time": 0,
-      "isRunning": false,
-      "isDone": false,
-      "isRemoved": false,
-      "id": 3
-    },
-    {
-      "title": "create task-manager webapp",
-      "time": 10,
+      "title": "create task-manager app",
+      "time": 77,
       "isRunning": false,
       "isDone": true,
       "isRemoved": false,
-      "id": 4
+      "isStarted": true,
+      "id": 3
     }
   ]
 }

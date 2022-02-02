@@ -11,7 +11,7 @@
     },
     {
       "title": "doing nothing",
-      "time": 5,
+      "time": 9,
       "isRunning": false,
       "isDone": false,
       "isRemoved": false,
@@ -20,9 +20,9 @@
     },
     {
       "title": "create task-manager app",
-      "time": 77,
+      "time": 430,
       "isRunning": false,
-      "isDone": true,
+      "isDone": false,
       "isRemoved": false,
       "isStarted": true,
       "id": 3
